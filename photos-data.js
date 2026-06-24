@@ -11,7 +11,7 @@
 const categories = [
   { key: "australia", label: "Australia" },
   { key: "malta", label: "Malta" },
-  { key: "mexico", label: "Mexico" },h
+  { key: "mexico", label: "Mexico" },
   { key: "others", label: "Other" }
 ];
 
@@ -23,9 +23,10 @@ const categories = [
 //   caption     - short title shown on the gallery thumbnail
 //   description - longer description used for image alt text (accessibility + SEO)
 const photos = [
+{"file": "Pictures/Australia/wynyard-construction-site.png", "type": "local", "category": "australia", "caption": "Wynyard Metro - Construction Site - Sydney", "description": "Metro Construction Site at Wynyard, Sydney CBD"},
+{"file": "1000042844.jpg", "type": "crop", "category": "australia", "caption": "Crown Sydney, Barangaroo", "description": "Crown Sydney tower in Barangaroo, Sydney, Australia"},
 {"file": "1000040101.jpg", "type": "crop", "category": "australia", "caption": "Sydney Harbour Bridge", "description": "Sydney Harbour Bridge, Sydney, Australia"},
 {"file": "1000040062.jpg", "type": "fit", "category": "australia", "caption": "Sydney Opera House at Sunset", "description": "Sydney Opera House at sunset, Sydney, Australia"},
-{"file": "1000042844.jpg", "type": "crop", "category": "australia", "caption": "Crown Sydney, Barangaroo", "description": "Crown Sydney tower in Barangaroo, Sydney, Australia"},
 {"file": "1000029159.jpg", "type": "crop", "category": "australia", "caption": "Sydney Light Rail", "description": "Sydney Light Rail Sydney, Australia"},
 {"file": "20200117_183257.jpg", "type": "crop", "category": "australia", "caption": "Sydney Light Rail", "description": "A Sydney Light Rail, Sydney, Australia"},
 {"file": "1000040097.jpg", "type": "crop", "category": "australia", "caption": "VH-TCN, Channel 9 Helicopter", "description": "VH-TCN, the Channel 9 news helicopter, over Sydney, Australia"},
@@ -43,12 +44,12 @@ const photos = [
 {"file": "Pictures/Sydney/rs=w_600,cg_true%20(2).webp", "type": "local", "category": "australia", "caption": "Sydney", "description": "Photograph from Sydney, Australia"},
 {"file": "Pictures/Sydney/rs=w_600,cg_true,m%20(1).webp", "type": "local", "category": "australia", "caption": "Sydney", "description": "Photograph from Sydney, Australia"},
 {"file": "Pictures/Sydney/rs=w_600,cg_true,m%20(3).webp", "type": "local", "category": "australia", "caption": "Sydney", "description": "Photograph from Sydney, Australia"},
-{"file": "Pictures/Sydney/rs=w_600,cg_true%20(6).webp", "type": "local", "category": "australia", "caption": "Sydney", "description": "Photograph from Sydney, Australia"},
+{"file": "Pictures/Sydney/rs=w_600,cg_true%20(6).webp", "type": "local", "category": "australia", "caption": "VH-TCN, Channel 9 Helicopter", "description": "VH-TCN, Channel 9 Helicopter"},
 {"file": "Pictures/Sydney/rs=w_600,cg_true%20(7).webp", "type": "local", "category": "australia", "caption": "Sydney", "description": "Photograph from Sydney, Australia"},
-{"file": "Pictures/Sydney/rs=w_600,cg_true%20(9).webp", "type": "local", "category": "australia", "caption": "Sydney", "description": "Photograph from Sydney, Australia"},
+{"file": "Pictures/Sydney/rs=w_600,cg_true%20(9).webp", "type": "local", "category": "australia", "caption": "VH-TCN, Channel 9 Helicopter", "description": "VH-TCN, Channel 9 Helicopter"},
 {"file": "Pictures/Sydney/rs=w_600,cg_true,m%20(4).webp", "type": "local", "category": "australia", "caption": "Sydney", "description": "Photograph from Sydney, Australia"},
 {"file": "Pictures/Sydney/rs=w_600,cg_true,m%20(5).webp", "type": "local", "category": "australia", "caption": "Sydney", "description": "Photograph from Sydney, Australia"},
-{"file": "Pictures/Sydney/rs=w_600,cg_true,m%20(6).webp", "type": "local", "category": "australia", "caption": "Sydney", "description": "Photograph from Sydney, Australia"},
+{"file": "Pictures/Sydney/rs=w_600,cg_true,m%20(6).webp", "type": "local", "category": "australia", "caption": "VH-TCN, Channel 9 Helicopter", "description": "VH-TCN, Channel 9 Helicopter"},
 {"file": "Pictures/Sydney/rs=w_600,cg_true,m%20(7).webp", "type": "local", "category": "australia", "caption": "Sydney", "description": "Photograph from Sydney, Australia"},
 {"file": "Pictures/Sydney/rs=w_600,cg_true,m%20(8).webp", "type": "local", "category": "australia", "caption": "Sydney", "description": "Photograph from Sydney, Australia"},
 {"file": "Pictures/Sydney/rs=w_600,cg_true,m%20(9).webp", "type": "local", "category": "australia", "caption": "Sydney", "description": "Photograph from Sydney, Australia"},
@@ -67,8 +68,6 @@ const photos = [
 {"file": "Pictures/Sydney/rs=w_600,cg_true,m%20(22).webp", "type": "local", "category": "australia", "caption": "Sydney CBD", "description": "Photograph from Sydney, Australia"},
 {"file": "Pictures/Sydney/rs=w_1280,h_855.webp", "type": "local", "category": "australia", "caption": "Cribs", "description": "Cribs at Circular Quay"},
 {"file": "Pictures/Sydney/rs=w_1280,h_855%20(1).webp", "type": "local", "category": "australia", "caption": "Angel Place, Sydney", "description": "Angel Place, Sydney"},
-{"file": "Pictures/Sydney/download%20(2).webp", "type": "local", "category": "australia", "caption": "Sydney Opera House", "description": "Sydney Opera House"},
-{"file": "Pictures/Sydney/download.webp", "type": "local", "category": "australia", "caption": "Sydney Zoo", "description": "Sydney Zoo"},
 {"file": "Pictures/Sydney/rs=w_1280,h_853.webp", "type": "local", "category": "australia", "caption": "Sydney Opera House", "description": "Sydney Opera House"},
 {"file": "Pictures/Sydney/rs=w_1160,h_1160.webp", "type": "local", "category": "australia", "caption": "Townhall Crossing, Sydney CBD", "description": "Townhall Crossing, Sydney CBD"},
 {"file": "Pictures/Malta/malta-01.webp", "type": "local", "category": "malta", "caption": "Bażilika Tal-Madonna Ta' Pinu Mill Gharb - Gozo ", "description": "Bażilika Tal-Madonna Ta' Pinu Mill Gharb - Gozo "},
@@ -104,6 +103,6 @@ const photos = [
 {"file": "Pictures/Mexico/mexico-15.webp", "type": "local", "category": "mexico", "caption": "Merida, Yuc, Mexico", "description": "Merida, Yuc, Mexico"},
 {"file": "Pictures/Mexico/mexico-16.webp", "type": "local", "category": "mexico", "caption": "Merida, Yuc, Mexico", "description": "Merida, Yuc, Mexico"},
 {"file": "Pictures/Mexico/mexico-17.webp", "type": "local", "category": "mexico", "caption": "Merida, Yuc, Mexico", "description": "Merida, Yuc, Mexico"},
-{"file": "Pictures/Mexico/mexico-18.webp", "type": "local", "category": "mexico", "caption": "Basilica de Guadalupe, Mexico", "description": "Basilica de Guadalupe, Mexico"},
-{"file": "Pictures/Others/Seattle,%20WA.jpg", "type": "local", "category": "others", "caption": "Seattle, WA", "description": "Seattle, Washington, United States"}
+{"file": "Pictures/Others/Seattle,%20WA.jpg", "type": "local", "category": "others", "caption": "Seattle, WA", "description": "Seattle, Washington, United States"},
+{"file": "Pictures/Mexico/mexico-18.webp", "type": "local", "category": "mexico", "caption": "Basilica de Guadalupe, Mexico", "description": "Basilica de Guadalupe, Mexico"}
 ];
