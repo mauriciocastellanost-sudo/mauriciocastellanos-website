@@ -11,7 +11,7 @@
 const categories = [
   { key: "australia", label: "Australia" },
   { key: "malta", label: "Malta" },
-  { key: "mexico", label: "Mexico" },
+  { key: "mexico", label: "Mexico" },h
   { key: "others", label: "Other" }
 ];
 
@@ -42,7 +42,6 @@ const photos = [
 {"file": "Pictures/Sydney/rs=w_600,cg_true%20(1).webp", "type": "local", "category": "australia", "caption": "Sydney", "description": "Photograph from Sydney, Australia"},
 {"file": "Pictures/Sydney/rs=w_600,cg_true%20(2).webp", "type": "local", "category": "australia", "caption": "Sydney", "description": "Photograph from Sydney, Australia"},
 {"file": "Pictures/Sydney/rs=w_600,cg_true,m%20(1).webp", "type": "local", "category": "australia", "caption": "Sydney", "description": "Photograph from Sydney, Australia"},
-{"file": "Pictures/Sydney/rs=w_600,cg_true,m%20(2).webp", "type": "local", "category": "australia", "caption": "Sydney", "description": "Photograph from Sydney, Australia"},
 {"file": "Pictures/Sydney/rs=w_600,cg_true,m%20(3).webp", "type": "local", "category": "australia", "caption": "Sydney", "description": "Photograph from Sydney, Australia"},
 {"file": "Pictures/Sydney/rs=w_600,cg_true%20(6).webp", "type": "local", "category": "australia", "caption": "Sydney", "description": "Photograph from Sydney, Australia"},
 {"file": "Pictures/Sydney/rs=w_600,cg_true%20(7).webp", "type": "local", "category": "australia", "caption": "Sydney", "description": "Photograph from Sydney, Australia"},
