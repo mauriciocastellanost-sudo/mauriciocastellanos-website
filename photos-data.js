@@ -23,6 +23,7 @@ const categories = [
 //   caption     - short title shown on the gallery thumbnail
 //   description - longer description used for image alt text (accessibility + SEO)
 const photos = [
+{"file": "Pictures/Australia/img-1-1783548719209.jpg", "type": "local", "category": "australia", "caption": "Sydney Opera House", "description": "Sydney Opera House"},
 {"file": "Pictures/Australia/wynyard-construction-site.png", "type": "local", "category": "australia", "caption": "Wynyard Metro - Construction Site - Sydney", "description": "Metro Construction Site at Wynyard, Sydney CBD"},
 {"file": "1000042844.jpg", "type": "crop", "category": "australia", "caption": "Crown Sydney, Barangaroo", "description": "Crown Sydney tower in Barangaroo, Sydney, Australia"},
 {"file": "1000040101.jpg", "type": "crop", "category": "australia", "caption": "Sydney Harbour Bridge", "description": "Sydney Harbour Bridge, Sydney, Australia"},
@@ -104,6 +105,5 @@ const photos = [
 {"file": "Pictures/Mexico/mexico-16.webp", "type": "local", "category": "mexico", "caption": "Merida, Yuc, Mexico", "description": "Merida, Yuc, Mexico"},
 {"file": "Pictures/Mexico/mexico-17.webp", "type": "local", "category": "mexico", "caption": "Merida, Yuc, Mexico", "description": "Merida, Yuc, Mexico"},
 {"file": "Pictures/Others/Seattle,%20WA.jpg", "type": "local", "category": "others", "caption": "Seattle, WA", "description": "Seattle, Washington, United States"},
-{"file": "Pictures/Mexico/mexico-18.webp", "type": "local", "category": "mexico", "caption": "Basilica de Guadalupe, Mexico", "description": "Basilica de Guadalupe, Mexico"},
-{"file": "Pictures/Australia/img-1-1783548719209.jpg", "type": "local", "category": "australia", "caption": "Sydney Opera House", "description": "Sydney Opera House"}
+{"file": "Pictures/Mexico/mexico-18.webp", "type": "local", "category": "mexico", "caption": "Basilica de Guadalupe, Mexico", "description": "Basilica de Guadalupe, Mexico"}
 ];
