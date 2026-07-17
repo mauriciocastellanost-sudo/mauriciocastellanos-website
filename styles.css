@@ -328,14 +328,6 @@ img { display: block; max-width: 100%; }
   border-radius: 4px;
 }
 
-.work-photo figcaption {
-  margin-top: 0.9rem;
-  font-family: 'Playfair Display', serif;
-  font-style: italic;
-  color: var(--accent2);
-  font-size: 0.98rem;
-}
-
 .work-grid {
   display: flex;
   flex-direction: column;
