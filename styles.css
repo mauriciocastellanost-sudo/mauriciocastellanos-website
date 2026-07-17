@@ -310,11 +310,11 @@ img { display: block; max-width: 100%; }
 
 .work-intro a:hover { text-decoration-color: var(--white); }
 
-.work-photo { margin-bottom: 3.5rem; }
+.work-photo { max-width: 720px; margin: 0 auto 3.5rem; }
 
 .work-photo img {
   width: 100%;
-  aspect-ratio: 21 / 9;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
   filter: grayscale(100%);
   border-radius: 4px;
