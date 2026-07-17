@@ -310,6 +310,14 @@ img { display: block; max-width: 100%; }
 
 .work-intro a:hover { text-decoration-color: var(--white); }
 
+.work-align {
+  display: grid;
+  grid-template-columns: 0.8fr 1.4fr 0.8fr;
+  gap: 3rem;
+}
+
+.work-align > * { grid-column: 2 / -1; }
+
 .work-photo { max-width: 720px; margin: 0 auto 3.5rem; }
 
 .work-photo img {
@@ -602,6 +610,10 @@ img { display: block; max-width: 100%; }
   }
 
   .about-image { max-width: 360px; margin: 0 auto; width: 100%; }
+
+  .work-align {
+    display: block;
+  }
 
   .work-photo img { aspect-ratio: 4 / 3; }
 
