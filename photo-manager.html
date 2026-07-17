@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Photo Manager — mauriciocastellanos.com</title>
+<style>
+  :root {
+    --black: #232527;
+    --near-black: #2c2f33;
+    --charcoal: #494e54;
+    --grey: #8b9096;
+    --light-grey: #e6e1d8;
+    --off-white: #f4f0e8;
+    --white: #ffffff;
+    --accent: #b5543c;
+    --accent2: #9aa3ab;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
+    background: var(--off-white);
+    color: var(--near-black);
+    line-height: 1.5;
+  }
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--near-black);
+    color: var(--off-white);
+    padding: 1.1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  header h1 {
+    font-size: 1.15rem;
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  header .sub {
+    font-size: 0.8rem;
+    color: var(--accent2);
+    margin-top: 2px;
+  }
+  #controls { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+  button {
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 0.6rem 1.25rem;
+    border-radius: 4px;
+    border: 1px solid var(--accent2);
+    background: transparent;
+    color: var(--off-white);
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, opacity 0.2s;
+  }
+  button:hover:not(:disabled) { background: var(--accent2); color: var(--near-black); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: var(--white); }
+  button.primary:hover:not(:disabled) { background: #9a4730; }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+  button.small { padding: 0.35rem 0.75rem; font-size: 0.75rem; }
+  button.danger { border-color: #c0594a; color: #c0594a; }
+  button.danger:hover { background: #c0594a; color: var(--white); }
+
+  #status {
+    font-size: 0.8rem;
+    color: var(--accent2);
+  }
+
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem;
+  }
+  .panel {
+    background: var(--white);
+    border: 1px solid var(--light-grey);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .panel h2 {
+    margin: 0 0 1rem;
+    font-size: 1.05rem;
+    letter-spacing: 0.02em;
+  }
+  .empty-state {
+    text-align: center;
+    padding: 4rem 1rem;
+    color: var(--charcoal);
+  }
+  .empty-state p { max-width: 38ch; margin: 0.5rem auto 0; }
+
+  /* Add photos */
+  #dropZone {
+    border: 2px dashed var(--light-grey);
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    color: var(--charcoal);
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  #dropZone.drag { border-color: var(--accent); background: var(--off-white); }
+  #dropZone input { display: none; }
+
+  .pending-list { margin-top: 1.25rem; display: flex; flex-direction: column; gap: 1rem; }
+  .pending-item {
+    display: grid;
+    grid-template-columns: 110px 1fr auto;
+    gap: 1rem;
+    align-items: start;
+    border: 1px solid var(--light-grey);
+    border-radius: 6px;
+    padding: 0.85rem;
+  }
+  .pending-item img.thumb {
+    width: 110px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 4px;
+    background: var(--light-grey);
+  }
+  .pending-fields { display: flex; flex-direction: column; gap: 0.5rem; }
+  .pending-fields .row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+  label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--grey); display: block; margin-bottom: 0.2rem; }
+  input[type="text"], select, textarea {
+    font-family: inherit;
+    font-size: 0.88rem;
+    padding: 0.5rem 0.6rem;
+    border: 1px solid var(--light-grey);
+    border-radius: 4px;
+    background: var(--off-white);
+    color: var(--near-black);
+    width: 100%;
+  }
+  textarea { resize: vertical; min-height: 2.4rem; }
+  .field { flex: 1; min-width: 140px; }
+
+  /* Filters */
+  .filters { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+  .filters button {
+    border-color: var(--light-grey);
+    color: var(--charcoal);
+    background: var(--off-white);
+  }
+  .filters button.active { background: var(--near-black); color: var(--white); border-color: var(--near-black); }
+  .filters button:hover:not(.active) { background: var(--light-grey); }
+
+  /* Grid */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+  .card {
+    border: 1px solid var(--light-grey);
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .card img.thumb {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    background: var(--light-grey);
+    display: block;
+  }
+  .card-body { padding: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  .card-body .file-path { font-size: 0.7rem; color: var(--grey); word-break: break-all; }
+  .card-actions { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; margin-top: 0.25rem; }
+  .order-btns { display: flex; gap: 0.25rem; }
+  .drag-handle {
+    cursor: grab;
+    color: var(--grey);
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0.35rem 0.5rem;
+    border-radius: 4px;
+    user-select: none;
+    touch-action: none;
+  }
+  .drag-handle:hover { background: var(--off-white); color: var(--near-black); }
+  .card.dragging { opacity: 0.4; }
+  .card.drag-over { outline: 2px dashed var(--accent); outline-offset: -2px; }
+
+  /* Deploy panel */
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-transform: none;
+    letter-spacing: normal;
+    font-size: 0.85rem;
+    color: var(--near-black);
+    margin-bottom: 0.85rem;
+  }
+  .checkbox-row input[type="checkbox"] { width: auto; }
+  #ghStatus { margin: 0; }
+  #ghStatus.error { color: #c0594a; }
+  #ghStatus.ok { color: #3b7a4a; }
+
+  /* Categories panel */
+  .cat-list { display: flex; flex-direction: column; gap: 0.6rem; }
+  .cat-row { display: grid; grid-template-columns: 140px 1fr auto auto; gap: 0.6rem; align-items: center; }
+  .cat-row .key { font-size: 0.8rem; color: var(--grey); font-family: monospace; }
+  .cat-row .count { font-size: 0.78rem; color: var(--grey); white-space: nowrap; }
+
+  .hint { font-size: 0.8rem; color: var(--charcoal); margin-top: 0.75rem; }
+  .hint code { background: var(--off-white); padding: 0.1rem 0.3rem; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Photo Manager</h1>
+    <div class="sub">mauriciocastellanos.com — gallery editor</div>
+  </div>
+  <div id="controls">
+    <span id="status">Open the site-preview folder to get started.</span>
+    <button id="openBtn" class="primary">Open site folder…</button>
+    <button id="saveBtn" disabled>Save changes</button>
+  </div>
+</header>
+
+<main>
+  <div id="emptyState" class="empty-state">
+    <h2>No folder open</h2>
+    <p>Click <strong>Open site folder…</strong> above and select your <code>site-preview</code> folder (the one containing <code>index.html</code> and <code>photos-data.js</code>). This tool only works in Chrome or Edge.</p>
+    <p>Changes are written straight to <code>photos-data.js</code> and the <code>Pictures</code> folder on your computer — nothing is uploaded anywhere. Re-open your local site (or redeploy) afterwards to see the changes.</p>
+  </div>
+
+  <div id="app" hidden>
+    <section class="panel" id="deployPanel">
+      <h2>Deploy</h2>
+      <div class="pending-fields">
+        <div class="row">
+          <div class="field">
+            <label>GitHub repo (owner/name)</label>
+            <input type="text" id="ghRepoInput" placeholder="e.g. mauriciocastellanost-sudo/mauriciocastellanos-website" />
+          </div>
+          <div class="field" style="max-width:140px;">
+            <label>Branch</label>
+            <input type="text" id="ghBranchInput" placeholder="main" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Personal access token</label>
+          <input type="password" id="ghTokenInput" placeholder="github_pat_… (Contents: read & write)" autocomplete="off" />
+        </div>
+      </div>
+      <label class="checkbox-row">
+        <input type="checkbox" id="ghAutoPushCheckbox" />
+        Push straight to GitHub whenever I click "Save changes" — Vercel deploys automatically from there
+      </label>
+      <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+        <button id="ghSaveConfigBtn" class="small">Save deploy settings</button>
+        <span id="ghStatus" class="hint"></span>
+      </div>
+      <p class="hint">Create a token at <strong>github.com &rarr; Settings &rarr; Developer settings &rarr; Personal access tokens &rarr; Fine-grained</strong>, scoped to just this repo with <strong>Contents: Read and write</strong> permission. It's stored only in this browser (localStorage) and used solely to call GitHub's API directly from here &mdash; nothing else ever sees it.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Add photos</h2>
+      <div id="dropZone">
+        Click to choose image files, or drag &amp; drop them here.
+        <input type="file" id="fileInput" multiple accept="image/*" />
+      </div>
+      <div class="pending-list" id="pendingList"></div>
+      <p class="hint">Each photo needs a <strong>caption</strong> (short title shown on hover) and a <strong>description</strong> (used as alt text — good for accessibility and SEO). Pick an existing gallery or create a new one. Files are copied into <code>Pictures/&lt;Gallery&gt;/</code> with a cleaned-up filename when you save.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Galleries</h2>
+      <div class="cat-list" id="catList"></div>
+      <div style="margin-top:0.85rem;">
+        <button id="addCatBtn" class="small">+ Add gallery</button>
+      </div>
+      <p class="hint">Every gallery here becomes a filter tab on the site, in this order (after "All"). Deleting a gallery is only allowed once it has no photos left.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Existing photos</h2>
+      <div class="filters" id="filterTabs"></div>
+      <div class="grid" id="photoGrid"></div>
+      <p class="hint">Use <strong>Rename file</strong> on any photo to clean up a messy filename — it renames the file on disk and updates its path. Don't forget to click <strong>Save changes</strong> afterwards.</p>
+    </section>
+  </div>
+</main>
+
+<script>
+const BASE = 'https://img1.wsimg.com/isteam/ip/79b6df4d-89a9-4ef1-acb4-21cdbae3923c';
+const FOLDER_OVERRIDES = { malta: 'Malta', mexico: 'Mexico', others: 'Others' };
+
+let rootHandle = null;
+let categories = [];
+let photos = [];
+let pendingUploads = []; // { id, file, objectUrl, caption, description, categoryKey }
+let activeFilter = 'all';
+let dirty = false;
+let draggingIndex = null; // { i } — original array index of the card being dragged
+
+const statusEl = document.getElementById('status');
+const openBtn = document.getElementById('openBtn');
+const saveBtn = document.getElementById('saveBtn');
+const emptyState = document.getElementById('emptyState');
+const app = document.getElementById('app');
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const pendingList = document.getElementById('pendingList');
+const catList = document.getElementById('catList');
+const addCatBtn = document.getElementById('addCatBtn');
+const filterTabs = document.getElementById('filterTabs');
+const photoGrid = document.getElementById('photoGrid');
+const ghRepoInput = document.getElementById('ghRepoInput');
+const ghBranchInput = document.getElementById('ghBranchInput');
+const ghTokenInput = document.getElementById('ghTokenInput');
+const ghAutoPushCheckbox = document.getElementById('ghAutoPushCheckbox');
+const ghSaveConfigBtn = document.getElementById('ghSaveConfigBtn');
+const ghStatusEl = document.getElementById('ghStatus');
+
+function status(msg) { statusEl.textContent = msg; }
+function markDirty() { dirty = true; saveBtn.disabled = false; }
+
+// ---- GitHub auto-deploy ----
+// This tool can optionally push changes straight to GitHub after a local
+// save, using a personal access token you supply. GitHub's existing
+// integration with Vercel then deploys automatically — no extra step
+// needed. The token lives only in this browser's localStorage.
+const GIT_CFG_KEY = 'photoManagerGitConfig_v1';
+const GIT_CFG_DEFAULTS = {
+  owner: 'mauriciocastellanost-sudo',
+  repo: 'mauriciocastellanos-website',
+  branch: 'main',
+  token: '',
+  autoPush: false
+};
+
+function loadGitConfig() {
+  try {
+    const raw = localStorage.getItem(GIT_CFG_KEY);
+    if (!raw) return { ...GIT_CFG_DEFAULTS };
+    return { ...GIT_CFG_DEFAULTS, ...JSON.parse(raw) };
+  } catch (e) {
+    return { ...GIT_CFG_DEFAULTS };
+  }
+}
+function persistGitConfig(cfg) {
+  localStorage.setItem(GIT_CFG_KEY, JSON.stringify(cfg));
+}
+
+let gitConfig = loadGitConfig();
+// Queued file operations (uploads, renames, deletions) to replay against
+// GitHub at save time, keyed so later ops on the same path win.
+let gitOps = [];
+
+function queueGitPut(path, blobOrFile) {
+  gitOps = gitOps.filter((op) => op.path !== path);
+  gitOps.push({ type: 'put', path, blob: blobOrFile });
+}
+function queueGitDelete(path) {
+  gitOps = gitOps.filter((op) => op.path !== path);
+  gitOps.push({ type: 'delete', path });
+}
+
+function fillGitConfigForm() {
+  ghRepoInput.value = gitConfig.owner && gitConfig.repo ? `${gitConfig.owner}/${gitConfig.repo}` : '';
+  ghBranchInput.value = gitConfig.branch || 'main';
+  ghTokenInput.value = gitConfig.token || '';
+  ghAutoPushCheckbox.checked = !!gitConfig.autoPush;
+  ghStatus(gitConfig.token
+    ? (gitConfig.autoPush ? 'Auto-push is on — saves will go straight to GitHub.' : 'Configured, but auto-push is off. Toggle it on to push automatically.')
+    : 'Not configured yet — add a token to enable auto-deploy.');
+}
+
+function ghStatus(msg, kind) {
+  ghStatusEl.textContent = msg;
+  ghStatusEl.classList.remove('error', 'ok');
+  if (kind) ghStatusEl.classList.add(kind);
+}
+
+ghSaveConfigBtn.addEventListener('click', () => {
+  const repoValue = ghRepoInput.value.trim();
+  const [owner, repo] = repoValue.split('/').map((s) => s.trim());
+  if (!owner || !repo) {
+    ghStatus('Repo must be in "owner/name" form.', 'error');
+    return;
+  }
+  gitConfig = {
+    owner,
+    repo,
+    branch: ghBranchInput.value.trim() || 'main',
+    token: ghTokenInput.value.trim(),
+    autoPush: ghAutoPushCheckbox.checked
+  };
+  persistGitConfig(gitConfig);
+  ghStatus('Deploy settings saved ✓', 'ok');
+});
+
+function utf8ToBase64(str) {
+  return bytesToBase64(new TextEncoder().encode(str));
+}
+function bytesToBase64(bytes) {
+  let binary = '';
+  const chunkSize = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+  }
+  return btoa(binary);
+}
+async function fileToBase64(file) {
+  const buf = await file.arrayBuffer();
+  return bytesToBase64(new Uint8Array(buf));
+}
+function encodeGitPath(path) {
+  return path.split('/').map(encodeURIComponent).join('/');
+}
+
+async function ghApi(pathAndQuery, options = {}) {
+  return fetch(`https://api.github.com/repos/${gitConfig.owner}/${gitConfig.repo}/contents/${pathAndQuery}`, {
+    ...options,
+    headers: {
+      'Authorization': `token ${gitConfig.token}`,
+      'Accept': 'application/vnd.github+json',
+      ...(options.headers || {})
+    }
+  });
+}
+
+async function ghGetSha(path) {
+  const res = await ghApi(`${encodeGitPath(path)}?ref=${encodeURIComponent(gitConfig.branch)}`);
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`Couldn't read ${path} from GitHub (${res.status})`);
+  const data = await res.json();
+  return data.sha;
+}
+
+async function ghPutFile(path, base64Content, message) {
+  const sha = await ghGetSha(path);
+  const res = await ghApi(encodeGitPath(path), {
+    method: 'PUT',
+    body: JSON.stringify({
+      message,
+      content: base64Content,
+      branch: gitConfig.branch,
+      ...(sha ? { sha } : {})
+    })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(`GitHub rejected ${path}: ${res.status} ${err.message || ''}`.trim());
+  }
+}
+
+async function ghDeleteFile(path, message) {
+  const sha = await ghGetSha(path);
+  if (!sha) return;
+  const res = await ghApi(encodeGitPath(path), {
+    method: 'DELETE',
+    body: JSON.stringify({ message, sha, branch: gitConfig.branch })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(`GitHub couldn't delete ${path}: ${res.status} ${err.message || ''}`.trim());
+  }
+}
+
+async function pushToGitHub(photosDataContent, onProgress) {
+  if (!gitConfig.token || !gitConfig.owner || !gitConfig.repo) {
+    throw new Error('GitHub push isn\'t configured — add a token in the Deploy panel first.');
+  }
+  let done = 0;
+  const total = gitOps.length + 1;
+  for (const op of gitOps) {
+    onProgress && onProgress(done, total, op.path);
+    if (op.type === 'put') {
+      const b64 = await fileToBase64(op.blob);
+      await ghPutFile(op.path, b64, `Photo manager: update ${op.path}`);
+    } else if (op.type === 'delete') {
+      await ghDeleteFile(op.path, `Photo manager: remove ${op.path}`);
+    }
+    done++;
+  }
+  onProgress && onProgress(done, total, 'photos-data.js');
+  await ghPutFile('photos-data.js', utf8ToBase64(photosDataContent), 'Photo manager: update gallery data');
+  gitOps = [];
+}
+
+function cropUrl(file, width) {
+  return `${BASE}/${file}/:/cr=t:0%25,l:0%25,w:100%25,h:100%25/rs=w:${width},cg:true`;
+}
+function fitUrl(file, width) {
+  return `${BASE}/${file}/:/rs=w:${width},cg:true,m`;
+}
+function thumbUrl(photo) {
+  if (photo.type === 'local') return null; // resolved async from disk
+  return photo.type === 'crop' ? cropUrl(photo.file, 400) : fitUrl(photo.file, 400);
+}
+
+function folderForCategory(cat) {
+  return FOLDER_OVERRIDES[cat.key] || cat.label.replace(/\s+/g, '');
+}
+
+function sanitizeFilename(name) {
+  const dot = name.lastIndexOf('.');
+  const base = dot > 0 ? name.slice(0, dot) : name;
+  const ext = dot > 0 ? name.slice(dot).toLowerCase() : '';
+  const clean = base
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(new RegExp('[̀-ͯ]', 'g'), '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-+|-+$)/g, '');
+  return (clean || 'photo') + ext;
+}
+
+function slugify(label) {
+  return label
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(new RegExp('[̀-ͯ]', 'g'), '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-+|-+$)/g, '');
+}
+
+// ---- File System Access helpers ----
+async function getDirAt(dirPath, { create = false } = {}) {
+  let dir = rootHandle;
+  if (!dirPath) return dir;
+  const parts = dirPath.split('/').filter(Boolean);
+  for (const part of parts) {
+    dir = await dir.getDirectoryHandle(part, { create });
+  }
+  return dir;
+}
+
+async function readProjectFile(path) {
+  const decoded = path.split('/').map(decodeURIComponent);
+  const dirPath = decoded.slice(0, -1).join('/');
+  const filename = decoded[decoded.length - 1];
+  const dir = await getDirAt(dirPath);
+  const fh = await dir.getFileHandle(filename);
+  return await fh.getFile();
+}
+
+async function removeProjectFile(path) {
+  const decoded = path.split('/').map(decodeURIComponent);
+  const dirPath = decoded.slice(0, -1).join('/');
+  const filename = decoded[decoded.length - 1];
+  const dir = await getDirAt(dirPath);
+  await dir.removeEntry(filename);
+}
+
+// Renames a local file on disk (read old bytes, write under new name, delete
+// old file). Returns the new project-relative path (with the new filename
+// URL-encoded if needed). Throws if a file with the new name already exists.
+async function renameProjectFile(path, newFilename) {
+  const decoded = path.split('/').map(decodeURIComponent);
+  const dirPath = decoded.slice(0, -1).join('/');
+  const oldFilename = decoded[decoded.length - 1];
+  const dir = await getDirAt(dirPath);
+
+  if (newFilename === oldFilename) return path;
+
+  try {
+    await dir.getFileHandle(newFilename);
+    throw new Error(`A file named "${newFilename}" already exists in that folder.`);
+  } catch (e) {
+    if (!(e instanceof DOMException) && e.message && e.message.includes('already exists')) throw e;
+    // NotFoundError means the name is free — continue.
+  }
+
+  const oldFh = await dir.getFileHandle(oldFilename);
+  const file = await oldFh.getFile();
+  const newFh = await dir.getFileHandle(newFilename, { create: true });
+  const writable = await newFh.createWritable();
+  await writable.write(file);
+  await writable.close();
+  await dir.removeEntry(oldFilename);
+
+  // Match the site's existing convention: only spaces need encoding (%20);
+  // commas, equals signs, and parentheses are left as-is in paths.
+  const newEncoded = newFilename.replace(/ /g, '%20');
+  const dirParts = decoded.slice(0, -1);
+  return [...dirParts, newEncoded].join('/');
+}
+
+async function uniqueFilename(dir, filename) {
+  let name = filename;
+  const dot = filename.lastIndexOf('.');
+  const base = dot > 0 ? filename.slice(0, dot) : filename;
+  const ext = dot > 0 ? filename.slice(dot) : '';
+  let i = 1;
+  while (true) {
+    try {
+      await dir.getFileHandle(name);
+      i++;
+      name = `${base}-${i}${ext}`;
+    } catch (e) {
+      return name;
+    }
+  }
+}
+
+// ---- Load / parse photos-data.js ----
+function parsePhotosData(text) {
+  const fn = new Function(text + '\nreturn { categories, photos };');
+  const data = fn();
+  return {
+    categories: data.categories.map((c) => ({ ...c })),
+    photos: data.photos.map((p) => ({ ...p }))
+  };
+}
+
+function serializeCategory(c) {
+  return `  { key: ${JSON.stringify(c.key)}, label: ${JSON.stringify(c.label)} }`;
+}
+
+function serializePhoto(p) {
+  return `{"file": ${JSON.stringify(p.file)}, "type": ${JSON.stringify(p.type)}, "category": ${JSON.stringify(p.category)}, "caption": ${JSON.stringify(p.caption)}, "description": ${JSON.stringify(p.description || '')}}`;
+}
+
+function buildPhotosDataFile() {
+  const header = [
+    '// ============================================================================',
+    '// Gallery data for the Photography section.',
+    '// This file is managed by the Photo Manager tool (photo-manager.html) — you can',
+    "// edit it by hand too, but the tool handles uploading files to the right",
+    '// folder and keeping this file\'s syntax valid.',
+    '//',
+    '// CATEGORIES: each entry becomes a filter tab on the site (in this order,',
+    '// after "All"). To add a new gallery, just add a category here — no other',
+    '// file needs to change.',
+    '// ============================================================================',
+    ''
+  ].join('\n');
+
+  const catsBlock = `const categories = [\n${categories.map(serializeCategory).join(',\n')}\n];\n`;
+
+  const photosHeader = [
+    '',
+    '// PHOTOS: each entry is one image.',
+    '//   file        - path to the image, relative to the site root',
+    '//   type        - "local" for files in /Pictures, or "crop"/"fit" for the',
+    '//                  legacy wsimg.com-hosted photos',
+    '//   category    - must match a "key" from categories above',
+    '//   caption     - short title shown on the gallery thumbnail',
+    '//   description - longer description used for image alt text (accessibility + SEO)'
+  ].join('\n');
+
+  const photosBlock = `const photos = [\n${photos.map(serializePhoto).join(',\n')}\n];\n`;
+
+  return `${header}${catsBlock}${photosHeader}\n${photosBlock}`;
+}
+
+// ---- Open project ----
+openBtn.addEventListener('click', async () => {
+  try {
+    rootHandle = await window.showDirectoryPicker();
+    const fh = await rootHandle.getFileHandle('photos-data.js');
+    const file = await fh.getFile();
+    const text = await file.text();
+    const data = parsePhotosData(text);
+    categories = data.categories;
+    photos = data.photos;
+    pendingUploads = [];
+    dirty = false;
+    saveBtn.disabled = true;
+    emptyState.hidden = true;
+    app.hidden = false;
+    status(`Loaded ${photos.length} photos across ${categories.length} galleries.`);
+    fillGitConfigForm();
+    render();
+  } catch (e) {
+    if (e.name !== 'AbortError') {
+      console.error(e);
+      status('Could not open folder: ' + e.message);
+    }
+  }
+});
+
+// ---- Add photos ----
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag'));
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropZone.classList.remove('drag');
+  handleFiles(e.dataTransfer.files);
+});
+fileInput.addEventListener('change', (e) => {
+  handleFiles(e.target.files);
+  fileInput.value = '';
+});
+
+function handleFiles(fileList) {
+  const defaultCategory = categories[0] ? categories[0].key : '';
+  for (const file of fileList) {
+    if (!file.type.startsWith('image/')) continue;
+    pendingUploads.push({
+      id: Math.random().toString(36).slice(2),
+      file,
+      objectUrl: URL.createObjectURL(file),
+      caption: '',
+      description: '',
+      categoryKey: defaultCategory
+    });
+  }
+  renderPending();
+}
+
+function renderPending() {
+  pendingList.innerHTML = '';
+  pendingUploads.forEach((p) => {
+    const row = document.createElement('div');
+    row.className = 'pending-item';
+
+    const img = document.createElement('img');
+    img.className = 'thumb';
+    img.src = p.objectUrl;
+    row.appendChild(img);
+
+    const fields = document.createElement('div');
+    fields.className = 'pending-fields';
+
+    const rowFields = document.createElement('div');
+    rowFields.className = 'row';
+
+    const captionField = document.createElement('div');
+    captionField.className = 'field';
+    captionField.innerHTML = '<label>Caption (title)</label>';
+    const captionInput = document.createElement('input');
+    captionInput.type = 'text';
+    captionInput.placeholder = 'e.g. Sydney Harbour Bridge';
+    captionInput.value = p.caption;
+    captionInput.addEventListener('input', () => { p.caption = captionInput.value; });
+    captionField.appendChild(captionInput);
+
+    const catField = document.createElement('div');
+    catField.className = 'field';
+    catField.innerHTML = '<label>Gallery</label>';
+    const catSelect = buildCategorySelect(p.categoryKey, (newKey) => { p.categoryKey = newKey; });
+    catField.appendChild(catSelect);
+
+    rowFields.appendChild(captionField);
+    rowFields.appendChild(catField);
+
+    const descField = document.createElement('div');
+    descField.className = 'field';
+    descField.innerHTML = '<label>Description (alt text)</label>';
+    const descInput = document.createElement('textarea');
+    descInput.placeholder = 'e.g. Sydney Harbour Bridge at sunset, Sydney, Australia';
+    descInput.value = p.description;
+    descInput.addEventListener('input', () => { p.description = descInput.value; });
+    descField.appendChild(descInput);
+
+    fields.appendChild(rowFields);
+    fields.appendChild(descField);
+    row.appendChild(fields);
+
+    const actions = document.createElement('div');
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'small danger';
+    removeBtn.textContent = 'Remove';
+    removeBtn.addEventListener('click', () => {
+      URL.revokeObjectURL(p.objectUrl);
+      pendingUploads = pendingUploads.filter((x) => x.id !== p.id);
+      renderPending();
+    });
+    actions.appendChild(removeBtn);
+    row.appendChild(actions);
+
+    pendingList.appendChild(row);
+  });
+
+  if (pendingUploads.length) markDirty();
+}
+
+// ---- Category select builder (shared) ----
+function buildCategorySelect(currentKey, onChange) {
+  const select = document.createElement('select');
+  categories.forEach((cat) => {
+    const opt = document.createElement('option');
+    opt.value = cat.key;
+    opt.textContent = cat.label;
+    if (cat.key === currentKey) opt.selected = true;
+    select.appendChild(opt);
+  });
+  const newOpt = document.createElement('option');
+  newOpt.value = '__new__';
+  newOpt.textContent = '+ New gallery…';
+  select.appendChild(newOpt);
+
+  select.addEventListener('change', () => {
+    if (select.value === '__new__') {
+      const cat = promptNewCategory();
+      if (cat) {
+        onChange(cat.key);
+        renderAll();
+      } else {
+        select.value = currentKey;
+      }
+    } else {
+      onChange(select.value);
+    }
+  });
+  return select;
+}
+
+function promptNewCategory() {
+  const label = prompt('Name for the new gallery (shown on the filter tab), e.g. "Japan":');
+  if (!label || !label.trim()) return null;
+  const trimmed = label.trim();
+  let key = slugify(trimmed);
+  if (!key) key = 'gallery';
+  let suffix = 1;
+  let finalKey = key;
+  while (categories.some((c) => c.key === finalKey)) {
+    suffix++;
+    finalKey = `${key}-${suffix}`;
+  }
+  const newCat = { key: finalKey, label: trimmed };
+  categories.push(newCat);
+  markDirty();
+  return newCat;
+}
+
+// ---- Categories panel ----
+function renderCategories() {
+  catList.innerHTML = '';
+  categories.forEach((cat) => {
+    const row = document.createElement('div');
+    row.className = 'cat-row';
+
+    const keySpan = document.createElement('div');
+    keySpan.className = 'key';
+    keySpan.textContent = cat.key;
+
+    const labelInput = document.createElement('input');
+    labelInput.type = 'text';
+    labelInput.value = cat.label;
+    labelInput.addEventListener('input', () => {
+      cat.label = labelInput.value;
+      markDirty();
+    });
+    labelInput.addEventListener('blur', renderAll);
+
+    const count = photos.filter((p) => p.category === cat.key).length
+      + pendingUploads.filter((p) => p.categoryKey === cat.key).length;
+    const countSpan = document.createElement('div');
+    countSpan.className = 'count';
+    countSpan.textContent = `${count} photo${count === 1 ? '' : 's'}`;
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'small danger';
+    delBtn.textContent = 'Remove';
+    delBtn.disabled = count > 0;
+    delBtn.title = count > 0 ? 'Move or delete its photos first' : 'Remove this gallery';
+    delBtn.addEventListener('click', () => {
+      if (!confirm(`Remove the "${cat.label}" gallery?`)) return;
+      categories = categories.filter((c) => c.key !== cat.key);
+      if (activeFilter === cat.key) activeFilter = 'all';
+      markDirty();
+      renderAll();
+    });
+
+    row.appendChild(keySpan);
+    row.appendChild(labelInput);
+    row.appendChild(countSpan);
+    row.appendChild(delBtn);
+    catList.appendChild(row);
+  });
+}
+
+addCatBtn.addEventListener('click', () => {
+  const cat = promptNewCategory();
+  if (cat) renderAll();
+});
+
+// ---- Filter tabs ----
+function renderFilters() {
+  filterTabs.innerHTML = '';
+  const tabs = [{ key: 'all', label: 'All' }, ...categories];
+  tabs.forEach((tab) => {
+    const btn = document.createElement('button');
+    btn.className = 'small' + (activeFilter === tab.key ? ' active' : '');
+    btn.textContent = tab.label;
+    btn.addEventListener('click', () => {
+      activeFilter = tab.key;
+      renderFilters();
+      renderGrid();
+    });
+    filterTabs.appendChild(btn);
+  });
+}
+
+// ---- Photo grid ----
+function renderGrid() {
+  photoGrid.innerHTML = '';
+  const visible = photos
+    .map((p, i) => ({ p, i }))
+    .filter(({ p }) => activeFilter === 'all' || p.category === activeFilter);
+
+  visible.forEach(({ p, i }) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.index = i;
+
+    card.addEventListener('dragover', (e) => {
+      if (!draggingIndex) return;
+      e.preventDefault();
+      card.classList.add('drag-over');
+    });
+    card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+    card.addEventListener('drop', (e) => {
+      e.preventDefault();
+      card.classList.remove('drag-over');
+      const srcIdx = draggingIndex ? draggingIndex.i : null;
+      draggingIndex = null;
+      if (srcIdx === null || srcIdx === i) return;
+      const [moved] = photos.splice(srcIdx, 1);
+      const insertAt = srcIdx < i ? i - 1 : i;
+      photos.splice(insertAt, 0, moved);
+      markDirty();
+      renderGrid();
+    });
+
+    const img = document.createElement('img');
+    img.className = 'thumb';
+    img.alt = p.description || p.caption || '';
+    const directUrl = thumbUrl(p);
+    if (directUrl) {
+      img.src = directUrl;
+    } else {
+      readProjectFile(p.file).then((file) => {
+        img.src = URL.createObjectURL(file);
+      }).catch(() => { img.alt = 'Image not found: ' + p.file; });
+    }
+    card.appendChild(img);
+
+    const body = document.createElement('div');
+    body.className = 'card-body';
+
+    const captionField = document.createElement('div');
+    captionField.innerHTML = '<label>Caption</label>';
+    const captionInput = document.createElement('input');
+    captionInput.type = 'text';
+    captionInput.value = p.caption || '';
+    captionInput.addEventListener('input', () => { p.caption = captionInput.value; markDirty(); });
+    captionField.appendChild(captionInput);
+
+    const descField = document.createElement('div');
+    descField.innerHTML = '<label>Description (alt text)</label>';
+    const descInput = document.createElement('textarea');
+    descInput.value = p.description || '';
+    descInput.addEventListener('input', () => { p.description = descInput.value; markDirty(); });
+    descField.appendChild(descInput);
+
+    const catField = document.createElement('div');
+    catField.innerHTML = '<label>Gallery</label>';
+    const catSelect = buildCategorySelect(p.category, (newKey) => { p.category = newKey; markDirty(); });
+    catField.appendChild(catSelect);
+
+    const pathDiv = document.createElement('div');
+    pathDiv.className = 'file-path';
+    pathDiv.textContent = p.file;
+
+    const actions = document.createElement('div');
+    actions.className = 'card-actions';
+
+    const order = document.createElement('div');
+    order.className = 'order-btns';
+    const handle = document.createElement('span');
+    handle.className = 'drag-handle';
+    handle.textContent = '⠿';
+    handle.title = 'Drag to reorder';
+    handle.draggable = true;
+    handle.addEventListener('dragstart', (e) => {
+      draggingIndex = { i };
+      card.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', String(i));
+    });
+    handle.addEventListener('dragend', () => {
+      draggingIndex = null;
+      card.classList.remove('dragging');
+    });
+    order.appendChild(handle);
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'small danger';
+    delBtn.textContent = 'Delete';
+    delBtn.addEventListener('click', async () => {
+      const alsoFile = p.type === 'local' && confirm('Also delete the image file from disk?\n\n' + p.file + '\n\n(Click Cancel to just remove it from the gallery.)');
+      photos = photos.filter((x) => x !== p);
+      if (alsoFile) {
+        try { await removeProjectFile(p.file); } catch (e) { console.warn('Could not delete file:', e); }
+        queueGitDelete(p.file);
+      }
+      markDirty();
+      renderAll();
+    });
+
+    actions.appendChild(order);
+
+    if (p.type === 'local') {
+      const renameBtn = document.createElement('button');
+      renameBtn.className = 'small';
+      renameBtn.textContent = 'Rename file';
+      renameBtn.title = 'Rename the image file on disk and update its path';
+      renameBtn.addEventListener('click', async () => {
+        const decodedParts = p.file.split('/').map(decodeURIComponent);
+        const currentName = decodedParts[decodedParts.length - 1];
+        const suggestion = sanitizeFilename(currentName);
+        const input = prompt('New filename for this image:', suggestion);
+        if (!input || !input.trim()) return;
+        const dot = currentName.lastIndexOf('.');
+        const ext = dot > 0 ? currentName.slice(dot).toLowerCase() : '';
+        let newName = sanitizeFilename(input.trim());
+        if (ext && !newName.toLowerCase().endsWith(ext)) {
+          newName = newName.replace(/\.[a-z0-9]+$/i, '') + ext;
+        }
+        try {
+          const oldPath = p.file;
+          const newPath = await renameProjectFile(p.file, newName);
+          p.file = newPath;
+          try {
+            const renamedFile = await readProjectFile(newPath);
+            queueGitPut(newPath, renamedFile);
+            queueGitDelete(oldPath);
+          } catch (e) { console.warn('Could not queue rename for GitHub push:', e); }
+          markDirty();
+          status(`Renamed to "${newName}". Click "Save changes" to update photos-data.js.`);
+          renderGrid();
+        } catch (e) {
+          alert('Rename failed: ' + e.message);
+        }
+      });
+      actions.appendChild(renameBtn);
+    }
+
+    actions.appendChild(delBtn);
+
+    body.appendChild(captionField);
+    body.appendChild(descField);
+    body.appendChild(catField);
+    body.appendChild(pathDiv);
+    body.appendChild(actions);
+    card.appendChild(body);
+
+    photoGrid.appendChild(card);
+  });
+}
+
+function renderAll() {
+  renderCategories();
+  renderFilters();
+  renderGrid();
+  renderPending();
+}
+function render() { renderAll(); }
+
+// ---- Save ----
+saveBtn.addEventListener('click', async () => {
+  saveBtn.disabled = true;
+  status('Saving…');
+  try {
+    const newEntries = [];
+    for (const p of pendingUploads) {
+      const cat = categories.find((c) => c.key === p.categoryKey) || categories[0];
+      const folder = folderForCategory(cat);
+      const dir = await getDirAt(`Pictures/${folder}`, { create: true });
+      const filename = await uniqueFilename(dir, sanitizeFilename(p.file.name));
+      const fh = await dir.getFileHandle(filename, { create: true });
+      const writable = await fh.createWritable();
+      await writable.write(p.file);
+      await writable.close();
+
+      const filePath = `Pictures/${folder}/${filename}`;
+      newEntries.push({
+        file: filePath,
+        type: 'local',
+        category: cat.key,
+        caption: p.caption || filename,
+        description: p.description || (p.caption || filename)
+      });
+      queueGitPut(filePath, p.file);
+      URL.revokeObjectURL(p.objectUrl);
+    }
+    // New photos go to the front of the gallery, most recent first.
+    photos = [...newEntries, ...photos];
+    pendingUploads = [];
+
+    const content = buildPhotosDataFile();
+    const fh = await rootHandle.getFileHandle('photos-data.js', { create: true });
+    const writable = await fh.createWritable();
+    await writable.write(content);
+    await writable.close();
+
+    dirty = false;
+
+    if (gitConfig.autoPush) {
+      status('Saved locally ✓ — pushing to GitHub…');
+      try {
+        await pushToGitHub(content, (done, total, path) => {
+          status(`Pushing to GitHub… (${done}/${total}) ${path}`);
+        });
+        status(`Saved and pushed ✓ — ${photos.length} photos across ${categories.length} galleries. Vercel is deploying now (usually live within a minute).`);
+        ghStatus('Last push succeeded ✓', 'ok');
+      } catch (gitErr) {
+        console.error(gitErr);
+        status(`Saved locally ✓, but the GitHub push failed: ${gitErr.message}`);
+        ghStatus(`Push failed: ${gitErr.message}`, 'error');
+      }
+    } else {
+      status(`Saved ✓ — ${photos.length} photos across ${categories.length} galleries. Refresh your site preview to see changes.`);
+    }
+    renderAll();
+  } catch (e) {
+    console.error(e);
+    status('Error saving: ' + e.message);
+    saveBtn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
