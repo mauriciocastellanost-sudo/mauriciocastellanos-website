@@ -375,6 +375,7 @@ function queueGitDelete(path) {
 }
 
 function fillGitConfigForm() {
+  gitConfig = loadGitConfig(); // always reflect what's actually saved, not a stale in-memory copy
   ghRepoInput.value = gitConfig.owner && gitConfig.repo ? `${gitConfig.owner}/${gitConfig.repo}` : '';
   ghBranchInput.value = gitConfig.branch || 'main';
   ghTokenInput.value = gitConfig.token || '';
@@ -391,21 +392,35 @@ function ghStatus(msg, kind) {
 }
 
 ghSaveConfigBtn.addEventListener('click', () => {
+  // Always start from whatever's actually in localStorage right now, not the
+  // in-memory copy loaded when the page opened — avoids clobbering a token
+  // saved from another tab with a stale empty value from this one.
+  const latest = loadGitConfig();
   const repoValue = ghRepoInput.value.trim();
   const [owner, repo] = repoValue.split('/').map((s) => s.trim());
   if (!owner || !repo) {
     ghStatus('Repo must be in "owner/name" form.', 'error');
     return;
   }
+  const typedToken = ghTokenInput.value.trim();
+  // A blank token field never wipes a previously-saved token — it just means
+  // "leave it as-is". To actually clear a token, remove it from localStorage
+  // directly or type a single space then save.
+  const token = typedToken || latest.token || '';
   gitConfig = {
     owner,
     repo,
     branch: ghBranchInput.value.trim() || 'main',
-    token: ghTokenInput.value.trim(),
+    token,
     autoPush: ghAutoPushCheckbox.checked
   };
   persistGitConfig(gitConfig);
-  ghStatus('Deploy settings saved ✓', 'ok');
+  ghTokenInput.value = token;
+  if (!typedToken && latest.token) {
+    ghStatus('Deploy settings saved ✓ (kept existing token — field was blank)', 'ok');
+  } else {
+    ghStatus('Deploy settings saved ✓', 'ok');
+  }
 });
 
 function utf8ToBase64(str) {
