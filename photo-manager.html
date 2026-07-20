@@ -1148,6 +1148,11 @@ saveBtn.addEventListener('click', async () => {
     saveBtn.disabled = false;
   }
 });
+
+// Reflect saved deploy settings in the panel right away, so the token field
+// and status line are accurate on first load instead of looking blank/
+// unconfigured until you open a folder.
+fillGitConfigForm();
 </script>
 </body>
 </html>
